@@ -1,3 +1,4 @@
+import 'package:firebase_demo_1/firebase_api_services.dart';
 import 'package:flutter/material.dart';
 
 class SimpleCrudDemo extends StatefulWidget {
@@ -29,7 +30,7 @@ class _SimpleCrudDemoState extends State<SimpleCrudDemo> {
             TextFormField(),
             ElevatedButton(
               onPressed: () {
-                enterdedName = textEditingController.text;
+                FireBaseApi.addUser(userName: textEditingController.text);
                 setState(() {});
               },
               child: const Text("Submite"),
