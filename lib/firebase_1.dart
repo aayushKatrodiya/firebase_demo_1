@@ -27,7 +27,9 @@ class _SimpleCrudDemoState extends State<SimpleCrudDemo> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextFormField(),
+            TextFormField(
+              controller: textEditingController,
+            ),
             ElevatedButton(
               onPressed: () {
                 FireBaseApi.addUser(userName: textEditingController.text);
