@@ -11,6 +11,16 @@ class SimpleCrudDemo extends StatefulWidget {
 class _SimpleCrudDemoState extends State<SimpleCrudDemo> {
   TextEditingController textEditingController = TextEditingController();
   String? enterdedName;
+  late Future<List<Map>> futureUserData;
+  String selectedKey = '';
+  bool isUpgrade = false;
+
+  @override
+  void initState() {
+    futureUserData = FireBaseApi.selectData();
+    super.initState();
+  }
+
   @override
   void dispose() {
     textEditingController.dispose();
@@ -21,25 +31,56 @@ class _SimpleCrudDemoState extends State<SimpleCrudDemo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("FireBase_demo"),
+        backgroundColor: Colors.orange,
+        title: const Center(child: Text("FireBase_demo")),
       ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextFormField(
               controller: textEditingController,
             ),
-            ElevatedButton(
-              onPressed: () {
-                FireBaseApi.addUser(userName: textEditingController.text);
-                setState(() {});
-              },
-              child: const Text("Submite"),
-            ),
-            Text(enterdedName.toString()),
-          ],
-        ),
+          ),
+          ElevatedButton(
+            onPressed: isUpgrade == true
+                ? () {
+                    setState(() {});
+                  }
+                : () async {
+                    await FireBaseApi.addUser(
+                        userName: textEditingController.text);
+                    futureUserData = FireBaseApi.selectData();
+                    setState(() {});
+                  },
+            child: Text(isUpgrade == true ? "Upgrad" : "Submit"),
+          ),
+          const SizedBox(height: 20),
+          FutureBuilder(
+            future: futureUserData,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Expanded(
+                  child: ListView.builder(
+                    itemBuilder: (context, index) => ListTile(
+                      onTap: () {
+                        // selectedKey =
+                        setState(() {
+                          isUpgrade = true;
+                        });
+                      },
+                      title: Text(snapshot.data![index]['userName']),
+                      subtitle: Text(snapshot.data![index]['key']),
+                    ),
+                    itemCount: snapshot.data!.length,
+                  ),
+                );
+              } else {
+                return const CircularProgressIndicator();
+              }
+            },
+          )
+        ],
       ),
     );
   }
