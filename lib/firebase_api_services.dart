@@ -27,9 +27,13 @@ class FireBaseApi {
     required String key,
     required String userName,
   }) async {
-    await _db.child(key).set({
+    await _db.child(key).update({
       "key": key,
       'userName': userName,
     });
+  }
+
+  static Future<void> removeData({required String key}) async {
+    await _db.child(key).remove();
   }
 }

@@ -44,16 +44,22 @@ class _SimpleCrudDemoState extends State<SimpleCrudDemo> {
           ),
           ElevatedButton(
             onPressed: isUpgrade == true
-                ? () {
+                ? () async {
+                    await FireBaseApi.updateData(
+                      key: selectedKey,
+                      userName: textEditingController.text,
+                    );
+                    futureUserData = FireBaseApi.selectData();
                     setState(() {});
                   }
                 : () async {
                     await FireBaseApi.addUser(
                         userName: textEditingController.text);
                     futureUserData = FireBaseApi.selectData();
+                    textEditingController.clear();
                     setState(() {});
                   },
-            child: Text(isUpgrade == true ? "Upgrad" : "Submit"),
+            child: Text(isUpgrade == true ? "update" : "Submit"),
           ),
           const SizedBox(height: 20),
           FutureBuilder(
@@ -62,15 +68,26 @@ class _SimpleCrudDemoState extends State<SimpleCrudDemo> {
               if (snapshot.hasData) {
                 return Expanded(
                   child: ListView.builder(
-                    itemBuilder: (context, index) => ListTile(
-                      onTap: () {
-                        // selectedKey =
-                        setState(() {
-                          isUpgrade = true;
-                        });
+                    itemBuilder: (context, index) => Dismissible(
+                      key: UniqueKey(),
+                      onDismissed: (direction) async {
+                        await FireBaseApi.removeData(
+                            key: snapshot.data![index]['key']);
+                        isUpgrade = false;
+                        futureUserData = FireBaseApi.selectData();
                       },
-                      title: Text(snapshot.data![index]['userName']),
-                      subtitle: Text(snapshot.data![index]['key']),
+                      child: ListTile(
+                        onTap: () {
+                          selectedKey = snapshot.data![index]['key'];
+                          textEditingController.text =
+                              snapshot.data![index]['userName'];
+                          setState(() {
+                            isUpgrade = true;
+                          });
+                        },
+                        title: Text(snapshot.data![index]['userName']),
+                        subtitle: Text(snapshot.data![index]['key']),
+                      ),
                     ),
                     itemCount: snapshot.data!.length,
                   ),
